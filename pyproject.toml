@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "sem-seg"
+name = "cnn"
 version = "0.1.0"
 description = "Computer vision project to segment trafic pictures sementically."
 authors = ["3la <blidiala32@gmail.com>"]
