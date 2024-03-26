@@ -1,0 +1,16 @@
+# Ignoring the .gitattributes file
+# .gitattributes
+
+# Ignoring the directories from KITTI
+data_semantics
+devkit_semantics
+
+# Ignoring specific pdf files
+structure_reseau_1.pdf
+structure_reseau_2.pdf
+
+# Ignoring useless checkpoints (auto-save is on)
+.ipynb_checkpoints
+
+# Ignoring big data
+data
