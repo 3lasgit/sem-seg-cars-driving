@@ -17,7 +17,7 @@ from google.cloud import storage
 project_number = os.environ["CLOUD_ML_PROJECT_ID"]
 client = storage.Client(project=project_number)
 
-# Remplacer 'your-bucket-name' par le nom de votre bucket
+
 bucket_name = 'data_kitti_driv_seg'
 bucket = client.get_bucket(bucket_name)
 
@@ -33,7 +33,6 @@ blob = bucket.blob(object_path)
 # Télécharger les données de l'objet en mémoire
 data = BytesIO(blob.download_as_string())
 
-# Charger le modèle PyTorch à partir des données
 training_tensor = tch.load(data)
 training_tensor.shape
 
@@ -167,4 +166,9 @@ for epoch in range(n_epoch) :
 
     
 # Model saving
-tch.save(unet_model.state_dict(), PATH)
+local_model_path = "unet_model.pt"
+tch.save(unet_model.state_dict(), local_model_path)
+
+object_path = 'model/' + local_model_path
+blob = bucket.blob(object_path)
+blob.upload_from_filename(local_model_path)
