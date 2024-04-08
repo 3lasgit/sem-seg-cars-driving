@@ -14,8 +14,9 @@ from google.cloud import storage
 
 # Initialiser le client GCS
 
-project_number = os.environ["CLOUD_ML_PROJECT_ID"]
-client = storage.Client(project=project_number)
+#project_number = os.environ["CLOUD_ML_PROJECT_ID"]
+project_id = "semantic-segmentation-on-kitti"
+client = storage.Client(project=project_id)
 
 
 bucket_name = 'data_kitti_driv_seg'
@@ -140,7 +141,7 @@ optimizer = tch.optim.Adam(unet_model.parameters(), lr=0.001)
 
 unet_model.train()
 
-n_epoch = 10
+n_epoch = 100
 
 
 for epoch in range(n_epoch) :
