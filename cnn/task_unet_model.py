@@ -62,7 +62,7 @@ class ImageMaskDataset(Dataset):
     
 # Splitting data into training/test datasets
 
-training_data, test_data = ImageMaskDataset(training_tensor[:,:10]), ImageMaskDataset(training_tensor[:,10:])
+training_data, test_data = ImageMaskDataset(training_tensor[:,:5]), ImageMaskDataset(training_tensor[:,10:])
 
 # Création du DataLoader
 data_loader = tch.utils.data.DataLoader(training_data, batch_size=args.batch_size, shuffle=True)
