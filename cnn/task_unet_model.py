@@ -4,10 +4,18 @@ import numpy as np
 import plotly.graph_objects as go
 from pathlib import Path
 import os
-
+import argparse
 
 # Importing the data 
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--lr_rate', default=0.001, type=int)
+parser.add_argument('--n_epoch', default=100, type=int)
+parser.add_argument('--batch_size', default=1, type=int)
+args = parser.parse_args()
+
+
+# Add saving and loading models for big epochs' training
 
 from google.cloud import storage
 
@@ -21,9 +29,6 @@ client = storage.Client(project=project_id)
 
 bucket_name = 'data_kitti_driv_seg'
 bucket = client.get_bucket(bucket_name)
-
-# Liste des objets dans le bucket
-blobs = bucket.list_blobs()
 
     
 from io import BytesIO
@@ -57,11 +62,10 @@ class ImageMaskDataset(Dataset):
     
 # Splitting data into training/test datasets
 
-training_data, test_data = ImageMaskDataset(training_tensor[:,:160]), ImageMaskDataset(training_tensor[:,160:])
+training_data, test_data = ImageMaskDataset(training_tensor[:,:10]), ImageMaskDataset(training_tensor[:,10:])
 
 # Création du DataLoader
-batch_size = 1
-data_loader = tch.utils.data.DataLoader(training_data, batch_size=batch_size, shuffle=True)
+data_loader = tch.utils.data.DataLoader(training_data, batch_size=args.batch_size, shuffle=True)
 
 
 # Building the CNN (U-Net)
@@ -137,15 +141,28 @@ unet_model = UNet(in_channels = 3, out_channels = 3)
 
 # Définir la fonction de perte (criterion) et l'optimiseur
 criterion = nn.CrossEntropyLoss()
-optimizer = tch.optim.Adam(unet_model.parameters(), lr=0.001)
+optimizer = tch.optim.Adam(unet_model.parameters(), lr=args.lr_rate)
 
 unet_model.train()
 
-n_epoch = 100
 
+for epoch in range(args.n_epoch) :
+    running_loss = 0.0 
+    
+    if epoch // 5 == 0 :
+        local_model_path = "unet_model.pt"
+        object_path = 'model/' + local_model_path
+        blob = bucket.blob(object_path)
+        
+        # Download the model locally
+        blob.download_to_filename(local_model_path)
 
-for epoch in range(n_epoch) :
-    running_loss = 0.0
+        # Charger les poids du modèle depuis le fichier
+        state_dict = tch.load(local_model_path)
+
+        # Mettre à jour les paramètres du modèle avec les poids chargés
+        unet_model.load_state_dict(state_dict)
+        
     for image, mask in data_loader :
         # Remettre à zéro les gradients
         optimizer.zero_grad()
@@ -161,12 +178,21 @@ for epoch in range(n_epoch) :
 
         # Calculate the whole loss of the epoch
         running_loss += loss.item()
+        
+    if epoch // 5 == 0 :
+        local_model_path = "unet_model.pt"
+        tch.save(unet_model.state_dict(), local_model_path)
+
+        object_path = 'model/' + local_model_path
+        blob = bucket.blob(object_path)
+        blob.upload_from_filename(local_model_path)
 
     # Afficher la perte moyenne de l'époque
-    print(f"Epoch [{epoch+1}/{n_epoch}], Loss: {running_loss/len(data_loader)}")
+    print(f"Epoch [{epoch+1}/{args.n_epoch}], Loss: {running_loss/len(data_loader)}")
 
     
 # Model saving
+
 local_model_path = "unet_model.pt"
 tch.save(unet_model.state_dict(), local_model_path)
 
