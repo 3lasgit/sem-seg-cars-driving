@@ -10,7 +10,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--lr_rate', default=0.001, type=int)
-parser.add_argument('--n_epoch', default=100, type=int)
+parser.add_argument('--n_epoch', default=50, type=int)
 parser.add_argument('--batch_size', default=1, type=int)
 args = parser.parse_args()
 
@@ -62,7 +62,7 @@ class ImageMaskDataset(Dataset):
     
 # Splitting data into training/test datasets
 
-training_data, test_data = ImageMaskDataset(training_tensor[:,:5]), ImageMaskDataset(training_tensor[:,10:])
+training_data, test_data = ImageMaskDataset(training_tensor[:,:160]), ImageMaskDataset(training_tensor[:,160:])
 
 # Création du DataLoader
 data_loader = tch.utils.data.DataLoader(training_data, batch_size=args.batch_size, shuffle=True)
@@ -162,7 +162,6 @@ for epoch in range(args.n_epoch) :
 
         # Mettre à jour les paramètres du modèle avec les poids chargés
         unet_model.load_state_dict(state_dict)
-        
         
     for image, mask in data_loader :
         # Remettre à zéro les gradients
