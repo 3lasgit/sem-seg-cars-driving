@@ -162,6 +162,7 @@ for epoch in range(args.n_epoch) :
 
         # Mettre à jour les paramètres du modèle avec les poids chargés
         unet_model.load_state_dict(state_dict)
+        unet_model.train()
         
     for image, mask in data_loader :
         # Remettre à zéro les gradients
