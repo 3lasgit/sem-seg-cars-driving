@@ -149,7 +149,7 @@ unet_model.train()
 for epoch in range(args.n_epoch) :
     running_loss = 0.0 
     
-    if epoch // 5 == 0 :
+    if epoch % 5 == 0 :
         local_model_path = "unet_model.pt"
         object_path = 'model/' + local_model_path
         blob = bucket.blob(object_path)
@@ -162,6 +162,7 @@ for epoch in range(args.n_epoch) :
 
         # Mettre à jour les paramètres du modèle avec les poids chargés
         unet_model.load_state_dict(state_dict)
+        
         
     for image, mask in data_loader :
         # Remettre à zéro les gradients
@@ -179,7 +180,7 @@ for epoch in range(args.n_epoch) :
         # Calculate the whole loss of the epoch
         running_loss += loss.item()
         
-    if epoch // 5 == 0 :
+    if epoch % 5 == 0 :
         local_model_path = "unet_model.pt"
         tch.save(unet_model.state_dict(), local_model_path)
 
