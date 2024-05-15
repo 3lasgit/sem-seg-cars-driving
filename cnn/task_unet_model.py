@@ -27,7 +27,7 @@ project_id = "semantic-segmentation-on-kitti"
 client = storage.Client(project=project_id)
 
 
-bucket_name = 'data_kitti_driv_seg'
+bucket_name = 'kitti_driv_seg_unet'
 bucket = client.get_bucket(bucket_name)
 
     
@@ -142,6 +142,8 @@ unet_model = UNet(in_channels = 3, out_channels = 3)
 # Définir la fonction de perte (criterion) et l'optimiseur
 criterion = nn.CrossEntropyLoss()
 optimizer = tch.optim.Adam(unet_model.parameters(), lr=args.lr_rate)
+
+# Add saving method for optimisizer and epoch as said here https://pytorch.org/tutorials/recipes/recipes/saving_and_loading_a_general_checkpoint.html
 
 unet_model.train()
 
