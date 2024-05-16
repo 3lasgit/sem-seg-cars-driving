@@ -14,7 +14,6 @@ structure_reseau_2.pdf
 
 # Ignoring big data
 data
-models
 
 # Ignoring test
 local_test.ipynb
